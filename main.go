@@ -21,6 +21,11 @@ import (
 	"github.com/xackery/eqemuconfig"
 )
 
+var (
+	//Version of binary
+	Version string
+)
+
 func main() {
 	start := time.Now()
 
@@ -93,6 +98,7 @@ func run() error {
 		return errors.Wrap(err, "item count")
 	}
 
+	log.Info().Msgf("eqitem %s", Version)
 	ids := []string{}
 
 	header := []string{}
@@ -129,18 +135,19 @@ func run() error {
 				if _, err = db.NamedExec(item.insertQuery(), item); err != nil {
 					return errors.Wrapf(err, "insert %d", item.ID)
 				}
-				fmt.Println("inserted", item.ID)
+				log.Info().Msgf("inserted %d", item.ID)
 				ids = append(ids, fmt.Sprintf("%d", item.ID))
 				continue
 			}
 			return errors.Wrap(err, "old item")
 		}
 		if lineCount%1000 == 0 {
-			fmt.Println(lineCount)
+			log.Info().Msgf("processed %d lines...", lineCount)
 		}
 	}
 
 	log.Debug().Msgf("processed %d lines", lineCount)
-	fmt.Println("total ids: ", strings.Join(ids, ", "))
+
+	log.Info().Msgf("id dump: %s", strings.Join(ids, ", "))
 	return nil
 }
