@@ -8,4 +8,5 @@ require (
 	github.com/mattn/go-colorable v0.1.4
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.18.0
+	github.com/xackery/eqemuconfig v0.0.2
 )

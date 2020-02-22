@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/xackery/eqemuconfig"
 )
 
 func main() {
@@ -52,27 +54,38 @@ func main() {
 
 func run() error {
 	if len(os.Args) < 2 {
-		fmt.Println("usage: itemimport items.txt")
+		fmt.Println("usage: itemimport items.txt [itemid]")
 		os.Exit(1)
 	}
+
+	cfg, err := eqemuconfig.GetConfig()
+	if err != nil {
+		return err
+	}
+
+	conn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", cfg.Database.Username, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Db)
+	db, err := sqlx.Open("mysql", conn)
+	if err != nil {
+		return errors.Wrap(err, "sql open")
+	}
+	defer db.Close()
 
 	path := os.Args[1]
 	f, err := os.Open(path)
 	if err != nil {
 		return err
 	}
+	var itemid int64
+	if len(os.Args) > 2 {
+		itemid, err = strconv.ParseInt(os.Args[2], 10, 64)
+		if err != nil {
+			return err
+		}
+	}
 
 	r := csv.NewReader(f)
 	r.Comma = '|'
 	r.LazyQuotes = true
-
-	conn := "eqemu:eqemupass@tcp(127.0.0.1:3306)/eqemu"
-	conn = "root:root@tcp(127.0.0.1:3306)/peq"
-	db, err := sqlx.Open("mysql", conn)
-	if err != nil {
-		return errors.Wrap(err, "sql open")
-	}
-	defer db.Close()
 
 	total := 0
 	err = db.Get(&total, "SELECT COUNT(id) FROM items")
@@ -103,6 +116,10 @@ func run() error {
 		item, err := NewItem(header, record)
 		if err != nil {
 			log.Warn().Err(err).Int("line", lineCount).Msg("newItem")
+		}
+
+		if itemid > 0 && item.ID != itemid {
+			continue
 		}
 
 		oldItem := new(EQEmuItem)
