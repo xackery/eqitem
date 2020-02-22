@@ -3,6 +3,7 @@ import items from sodaeq to eqemu
 
 To use:
 
+* Download the binary for your operating system at https://github.com/xackery/eqitem/releases
 * place eqemu_config.json inside the same directory as eqitem.exe, or set the EQEMU_CONFIG environment variable to where your eqemu_config is located
 * download http://items.sodeq.org/downloads/items.txt.gz and extract. (~111 mb)
 * run the program, such as `eqitem.exe C:\Downloads\items.txt`
