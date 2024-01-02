@@ -1,9 +1,9 @@
 # A Self-Documenting Makefile: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
-VERSION := v0.0.1
+VERSION := v0.0.3
 NAME := eqitem
 
 .PHONY: build-all
-build-all: sanitize
+build-all:
 	@echo "Preparing talkeq ${VERSION}"
 	@rm -rf bin/*
 	@-mkdir -p bin/
@@ -15,10 +15,7 @@ build-all: sanitize
 	@GOOS=windows GOARCH=386 go build -ldflags="-X main.Version=${VERSION} -s -w" -o bin/${NAME}-${VERSION}-win-x86.exe *.go
 	@echo "Building OSX"
 	@GOOS=darwin GOARCH=amd64 go build -ldflags="-X main.Version=${VERSION} -s -w" -o bin/${NAME}-${VERSION}-osx-x64 *.go
-.PHONY: sanitize
-sanitize:
-	@goimports -w .
-	@golint
+
 
 PROTO_VERSION=3.8.0
 GO_PLUGIN=bin/protoc-gen-go

@@ -15,3 +15,5 @@
 # vendor/
 eqemu_config.json
 items.txt
+
+bin/
